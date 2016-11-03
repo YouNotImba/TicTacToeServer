@@ -2,22 +2,27 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
+import javax.swing.border.LineBorder;
 
 import controller.Controller;
+import test.TTTButton;
 
 public class View extends JFrame {
 
-	private static int WIDTH = 600;
-	private static int HEIGHT = 600;
-	private static Field[] fields = new Field[9];
+	private static int WIDTH = 610;
+	private static int HEIGHT = 610;
+	private static FieldButton[] fields = new FieldButton[9];
 	private Controller controller;
 	private boolean turnComp = false;
 
@@ -35,45 +40,55 @@ public class View extends JFrame {
 		 * waitForConnect.setText("Waiting for opponent "); add(waitForConnect,
 		 * BorderLayout.CENTER);
 		 */
-		setLayout(new GridLayout(3, 3));
-
-		for (int i = 0; i < fields.length; i++) {
-			fields[i] = new Field(190, 190);
+		JPanel panel = new JPanel();
+		panel.setSize(new Dimension(600,600));
+		
+		panel.setBackground(Color.black);
+		panel.setBorder(new LineBorder(Color.YELLOW,2));
+		panel.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		
+		
+		panel.setLayout(new GridLayout(3, 3,5,5));
+		for (int i = 0; i < 9; i++) {
+			panel.add(fields[i] = new FieldButton());
 			fields[i].setView(this);
-			add(fields[i]);
-				
 			
 		}
+		
+				
+		add(panel,BorderLayout.CENTER);
+		
 		//revalidate();
-		fields[0].setX(0);
-		fields[0].setY(0);
-		fields[1].setX(0);
-		fields[1].setY(1);
-		fields[2].setX(0);
-		fields[2].setY(2);
-		fields[3].setX(1);
-		fields[3].setY(0);
-		fields[4].setX(1);
-		fields[4].setY(1);
-		fields[5].setX(1);
-		fields[5].setY(2);
-		fields[6].setX(2);
-		fields[6].setY(0);
-		fields[7].setX(2);
-		fields[7].setY(1);
-		fields[8].setX(2);
-		fields[8].setY(2);
+		fields[0].setXx(0);
+		fields[0].setYy(0);
+		fields[1].setXx(1);
+		fields[1].setYy(0);
+		fields[2].setXx(2);
+		fields[2].setYy(0);
+		fields[3].setXx(0);
+		fields[3].setYy(1);
+		fields[4].setXx(1);
+		fields[4].setYy(1);
+		fields[5].setXx(2);
+		fields[5].setYy(1);
+		fields[6].setXx(0);
+		fields[6].setYy(2);
+		fields[7].setXx(1);
+		fields[7].setYy(2);
+		fields[8].setXx(2);
+		fields[8].setYy(2);
 		setVisible(true);
 		
 	}
 
 	public void updateFields(int[][] matrix) {
 		for (int i = 0; i < fields.length; i++) {
-			int xOrO = matrix[fields[i].getY()][fields[i].getX()];
-			if (matrix[fields[i].getY()][fields[i].getX()] != 0) {
+			int xOrO = matrix[fields[i].getYy()][fields[i].getXx()];
+			if (matrix[fields[i].getYy()][fields[i].getXx()] != 0) {
 				if (!fields[i].isAlreadyDraw()) {
-					fields[i].setxOrO(xOrO);
-					fields[i].repaint();
+					//fields[i].setxOrO(xOrO);
+					//fields[i].repaint();
+					fields[i].setImage(xOrO);
 					fields[i].setAlreadyDraw(true);
 					fields[i].setClicable(false);
 				}
@@ -128,11 +143,11 @@ public class View extends JFrame {
 		return controller.isYourTurn();
 	}
 
-	public static Field[] getFields() {
+	public static FieldButton[] getFields() {
 		return fields;
 	}
 
-	public static void setFields(Field[] fields) {
+	public static void setFields(FieldButton[] fields) {
 		View.fields = fields;
 	}
 

@@ -11,13 +11,14 @@ import view.View;
 public class Client {
 	private static Controller controller;
 	private static boolean isGameStart = false;
-	private static boolean isYoutTurn = true;
+	private static boolean isYoutTurn = false;
 	private static boolean isGameOver = false;
 	private static int[][] matrix = new int[3][3];
-	public static int yourFigure = 2;
+	public static int yourFigure;
 	protected static Connection connection;
 	private static String serverAddress;
 	private static int serverPort;
+	
 
 	public class SocketThread extends Thread {
 
