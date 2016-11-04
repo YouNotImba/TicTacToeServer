@@ -6,7 +6,10 @@ import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,15 +19,15 @@ import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
 
 import controller.Controller;
-import test.TTTButton;
 
 public class View extends JFrame {
 
-	private static int WIDTH = 610;
-	private static int HEIGHT = 610;
+	private static int WIDTH = 640;
+	private static int HEIGHT = 640;
 	private static FieldButton[] fields = new FieldButton[9];
 	private Controller controller;
-	private boolean turnComp = false;
+	private JLabel info;
+	private StartButton start;
 
 	public void init() {
 
@@ -33,13 +36,14 @@ public class View extends JFrame {
 		setResizable(false);
 		setBackground(Color.BLACK);
 		setLocationRelativeTo(null);
-		/*
-		 * JLabel waitForConnect = new JLabel("", SwingConstants.CENTER);
-		 * waitForConnect.setForeground(Color.RED); waitForConnect.setFont(new
-		 * Font("Serif", Font.PLAIN, 40));
-		 * waitForConnect.setText("Waiting for opponent "); add(waitForConnect,
-		 * BorderLayout.CENTER);
-		 */
+		
+		info = new JLabel();
+		info.setSize(new Dimension(200,20));
+		info.setForeground(Color.BLUE);
+		info.setText("TicTacToe game");
+		
+		start = new StartButton(this);
+		
 		JPanel panel = new JPanel();
 		panel.setSize(new Dimension(600,600));
 		
@@ -57,8 +61,9 @@ public class View extends JFrame {
 		
 				
 		add(panel,BorderLayout.CENTER);
+		add(info,BorderLayout.NORTH);
+		add(start,BorderLayout.SOUTH);
 		
-		//revalidate();
 		fields[0].setXx(0);
 		fields[0].setYy(0);
 		fields[1].setXx(1);
@@ -86,8 +91,7 @@ public class View extends JFrame {
 			int xOrO = matrix[fields[i].getYy()][fields[i].getXx()];
 			if (matrix[fields[i].getYy()][fields[i].getXx()] != 0) {
 				if (!fields[i].isAlreadyDraw()) {
-					//fields[i].setxOrO(xOrO);
-					//fields[i].repaint();
+					
 					fields[i].setImage(xOrO);
 					fields[i].setAlreadyDraw(true);
 					fields[i].setClicable(false);
@@ -98,20 +102,33 @@ public class View extends JFrame {
 
 	public String getServerAddress() {
 
-		// pane.setVisible(true);
 		String input = JOptionPane.showInputDialog(this, "Enter server address : ");
 
 		return input;
 	}
 
+	public void newGame(){
+		for (int i = 0; i < fields.length; i++) {
+			fields[i].setClicable(true);
+			fields[i].setAlreadyDraw(false);
+			fields[i].setxOrO(0);
+			fields[i].setImage(0);
+		}
+		controller.newGame();
+	}
+	
+	public void findGame(){
+		controller.findGame();
+	}
+	
 	public void messageAboutGameStart(String figure) {
 		String message = "";
 		switch (figure) {
 		case "o":
-			message = "You go second ";
+			message = "Game found ! You go second";
 			break;
 		case "x":
-			message = "You go first - your turn :";
+			message = "Game found ! You go first";
 			break;
 		default:
 			message = "Sonthing wrong with starting game !";
@@ -121,8 +138,8 @@ public class View extends JFrame {
 		JOptionPane.showMessageDialog(this, message);
 	}
 	
-	public void gameOver(){
-		JOptionPane.showMessageDialog(this, "Game Over !!! ");
+	public void gameOver(String message){
+		JOptionPane.showMessageDialog(this, message);
 	}
 
 	public String defineName() {
@@ -130,9 +147,6 @@ public class View extends JFrame {
 		return name;
 	}
 	
-	public boolean isTurnComplited(){
-		return turnComp;
-	}
 
 	public String getServerPort() {
 		String port = JOptionPane.showInputDialog(this, "Enter server port : ");
@@ -158,10 +172,29 @@ public class View extends JFrame {
 	public void setController(Controller controller) {
 		this.controller = controller;
 	}
-
-	public void setTurnComp(boolean turnComp) {
-		this.turnComp = turnComp;
+	
+	public void setInfo(String text){
+		info.setText(text);
 	}
+	
+	public static class StartButton extends JButton implements ActionListener{
 
+		private View view;
+		
+		public StartButton(View view){
+			this.view = view;
+			setSize(new Dimension(100,60));
+			setForeground(Color.BLUE);
+			setText("Start Game");
+			addActionListener(this);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			view.setInfo("Searching game ...");
+			view.findGame();
+		}
+		
+	}
 	
 }

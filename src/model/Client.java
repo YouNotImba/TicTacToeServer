@@ -3,6 +3,8 @@ package model;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.swing.JOptionPane;
+
 import controller.Controller;
 import model.networkutilites.Connection;
 import model.networkutilites.Message;
@@ -16,9 +18,8 @@ public class Client {
 	private static int[][] matrix = new int[3][3];
 	public static int yourFigure;
 	protected static Connection connection;
-	private static String serverAddress;
-	private static int serverPort;
-	
+	private static String serverAddress = "localhost";
+	private static int serverPort = 4444;
 
 	public class SocketThread extends Thread {
 
@@ -52,19 +53,25 @@ public class Client {
 		}
 
 		public void gameStarted() throws ClassNotFoundException, IOException {
+			System.out.println("Client gameStarted() started  ");
 			while (true) {
 				Message msg = connection.receive();
+				System.out.println("gameStarteed received msg");
 				if (msg.getType() == 3) {
+					System.out.println("gameStarteed sucesfully received msg");
 					isGameStart = true;
 					String figure = msg.getData();
 					if (figure.equals("o")) {
 						yourFigure = 1;
 						isYoutTurn = false;
+						setInfo("Opponents turn ...");
 						controller.messageAboutGameStart(figure);
+						break;
 					} else {
 						yourFigure = 2;
 						isYoutTurn = true;
 						controller.messageAboutGameStart(figure);
+						break;
 					}
 				}
 				// else Throw new RuntimeException("")
@@ -72,28 +79,23 @@ public class Client {
 		}
 
 		protected void clientMainLoop() throws IOException, ClassNotFoundException {
+			System.out.println("Client mainloop started  ");
 			while (!isGameOver) {
-				if (isYoutTurn) {
-					if (!controller.isTurnComplited())
-						continue;
-					else {
-						Message message = new Message(4, "", matrix);
-						connection.send(message);
-						controller.setTurnComp(false);
-						isYoutTurn = false;
-					}
-				} else {
-					Message msg = connection.receive();
-					if (msg.getType() == 4) {
-						matrix = msg.getMatrix();
-						controller.updateFields(matrix);
-						isYoutTurn = true;
-					} else if (msg.getType() == 5) {
-						isGameOver = true;
-						controller.gameOver();
-					}
+				Message msg = connection.receive();
+				if (msg.getType() == 10) {
+					isYoutTurn = true;
+					setInfo("Your turn ...");
+				}
+				if (msg.getType() == 4) {
+					matrix = msg.getMatrix();
+					controller.updateFields(matrix);
+				} else if (msg.getType() == 5) {
+					isGameOver = true;
+					controller.gameOver(msg.getData());
+								
 				}
 			}
+
 		}
 
 		public void run() {
@@ -146,12 +148,26 @@ public class Client {
 		Client client = new Client(controller);
 		controller.setModel(client);
 		controller.initView();
-		defineServerAddress();
-		defineServerPort();
-		//controller.initView();
-	//	client.run();
+	//	defineServerAddress();
+	//	defineServerPort();
+		client.run();
 	}
 
+	public void newGame(){
+		matrix = new int[3][3];
+		isYoutTurn = false;
+		yourFigure = 0;
+		isGameOver = false;
+	}
+	
+	public void findGame(){
+		
+	}
+	
+	public void setInfo(String msg){
+		controller.setInfo(msg);
+	}
+	
 	public Client(Controller controller) {
 		this.controller = controller;
 	}
@@ -190,6 +206,10 @@ public class Client {
 
 	public int getYourFigure() {
 		return yourFigure;
+	}
+	
+	public void gameOver(String message){
+		controller.gameOver(message);
 	}
 
 	public void setYourFigure(int yourFigure) {

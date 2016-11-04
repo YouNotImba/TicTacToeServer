@@ -9,8 +9,9 @@ public class Message implements Serializable {
 	//2 - ACCEPTED
 	//3 - GAME STARTED : data = "o" or "x"
 	//4 - GAME TURN
+	//10 - YOUR TURN
 	//5 - GAME OVER
-	
+	//30 - SEARCH GAME
 	
 	private final int type;
 	private final String data;

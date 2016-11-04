@@ -21,18 +21,22 @@ public class Controller {
 		VIEW.init();
 	}
 	
-	public void gameOver(){
-		VIEW.gameOver();
+	public void gameOver(String message){
+		VIEW.gameOver(message);
 	}
 	
-	public boolean isTurnComplited(){
-		return VIEW.isTurnComplited();
+	public void findGame(){
+		model.findGame();
 	}
 	
-	public void setTurnComp(boolean condition){
-		VIEW.setTurnComp(condition);
+	public void newGame(){
+		model.newGame();
 	}
 	
+	public void setInfo(String msg){
+		VIEW.setInfo(msg);
+	}
+		
 	public void messageAboutGameStart(String figure){
 		VIEW.messageAboutGameStart(figure);
 	}
