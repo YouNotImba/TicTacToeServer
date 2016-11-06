@@ -12,6 +12,7 @@ public class Message implements Serializable {
 	//10 - YOUR TURN
 	//5 - GAME OVER
 	//30 - SEARCH GAME
+	//6 - DISCONNECTED FROM SERVER
 	
 	private final int type;
 	private final String data;

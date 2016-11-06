@@ -28,12 +28,6 @@ public class Client {
 			controller.updateFields(matrix);
 		}
 
-		/*
-		 * protected void notifyConnectionStatusChanged(boolean clientConnected)
-		 * { Client.this.clientConnected = clientConnected; synchronized
-		 * (Client.this) { Client.this.notify(); } }
-		 */
-
 		public void clientHandshake() throws IOException, ClassNotFoundException {
 			while (true) {
 				String name = controller.defineName();
@@ -41,11 +35,7 @@ public class Client {
 				connection.send(msg);
 				Message answer = connection.receive();
 				if (answer.getType() == 2) {
-					/*
-					 * sessionId = answer.getKey();
-					 * notifyConnectionStatusChanged(true);
-					 */
-					System.out.println("Connection established !");
+
 					return;
 				} else
 					throw new IOException("Connection failed !");
@@ -74,25 +64,26 @@ public class Client {
 						break;
 					}
 				}
-				// else Throw new RuntimeException("")
 			}
 		}
 
 		protected void clientMainLoop() throws IOException, ClassNotFoundException {
-			System.out.println("Client mainloop started  ");
-			while (!isGameOver) {
-				Message msg = connection.receive();
-				if (msg.getType() == 10) {
-					isYoutTurn = true;
-					setInfo("Your turn ...");
-				}
-				if (msg.getType() == 4) {
-					matrix = msg.getMatrix();
-					controller.updateFields(matrix);
-				} else if (msg.getType() == 5) {
-					isGameOver = true;
-					controller.gameOver(msg.getData());
-								
+			while (true) {
+				gameStarted();
+				while (!isGameOver) {
+					Message msg = connection.receive();
+					if (msg.getType() == 10) {
+						isYoutTurn = true;
+						setInfo("Your turn ...");
+					}
+					if (msg.getType() == 4) {
+						matrix = msg.getMatrix();
+						controller.updateFields(matrix);
+					} else if (msg.getType() == 5) {
+						isGameOver = true;
+						controller.gameOver(msg.getData());
+
+					}
 				}
 			}
 
@@ -104,7 +95,7 @@ public class Client {
 				Socket socket = new Socket(serverAddress, serverPort);
 				connection = new Connection(socket);
 				clientHandshake();
-				gameStarted();
+				// gameStarted();
 				clientMainLoop();
 			} catch (IOException e) {
 			} catch (ClassNotFoundException e) {
@@ -148,26 +139,31 @@ public class Client {
 		Client client = new Client(controller);
 		controller.setModel(client);
 		controller.initView();
-	//	defineServerAddress();
-	//	defineServerPort();
+		// defineServerAddress();
+		// defineServerPort();
 		client.run();
 	}
 
-	public void newGame(){
+	public void newGame() {
 		matrix = new int[3][3];
 		isYoutTurn = false;
 		yourFigure = 0;
 		isGameOver = false;
 	}
-	
-	public void findGame(){
-		
+
+	public void findGame() {
+		try {
+			connection.send(new Message(30, ""));
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
 	}
-	
-	public void setInfo(String msg){
+
+	public void setInfo(String msg) {
 		controller.setInfo(msg);
 	}
-	
+
 	public Client(Controller controller) {
 		this.controller = controller;
 	}
@@ -207,8 +203,8 @@ public class Client {
 	public int getYourFigure() {
 		return yourFigure;
 	}
-	
-	public void gameOver(String message){
+
+	public void gameOver(String message) {
 		controller.gameOver(message);
 	}
 

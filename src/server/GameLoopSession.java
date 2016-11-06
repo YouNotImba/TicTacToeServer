@@ -1,17 +1,28 @@
 package server;
 
 import java.io.IOException;
-import java.net.Socket;
 
 import model.networkutilites.Connection;
 import model.networkutilites.Message;
+import server.Server.Handler;
 
 public class GameLoopSession extends Thread {
 
 	private int[][] matrix = new int[3][3];
 	private Connection connection;
 	private Connection connection1;
+	private Handler handler;
+	private Handler handler1;
+	
 	private boolean gameOver = false;
+
+	
+	public GameLoopSession(Handler handler, Handler handler1) {
+		this.handler = handler;
+		this.handler1 = handler1;
+		this.connection=handler.getConnection();
+		this.connection1 = handler1.getConnection();
+	}
 
 	public GameLoopSession(Connection connection, Connection connection2) {
 
@@ -63,14 +74,17 @@ public class GameLoopSession extends Thread {
 
 		} catch (IOException e1) {
 			System.out.println("Error when coin !!");
-
+			handler.wakeUp();
+			handler1.wakeUp();
 		}
+		
 		while (!gameOver) {
 			try {
 				connection1.send(new Message(10, ""));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+			
 			Message answer = null;
 			try {
 				answer = connection1.receive();
@@ -84,6 +98,7 @@ public class GameLoopSession extends Thread {
 					connection.send(new Message(4, "", matrix));
 					connection1.send(new Message(5,"You win !!!"));
 					connection.send(new Message(5,"You lose !!!"));
+				
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -95,6 +110,7 @@ public class GameLoopSession extends Thread {
 					connection.send(new Message(4, "", matrix));
 					connection1.send(new Message(5,"Tie !!!"));
 					connection.send(new Message(5,"Tie !!!"));
+				
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -123,6 +139,7 @@ public class GameLoopSession extends Thread {
 						connection1.send(new Message(4, "", matrix));
 						connection1.send(new Message(5,"You lose !!!"));
 						connection.send(new Message(5,"You win !!!"));
+					
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -134,6 +151,7 @@ public class GameLoopSession extends Thread {
 						connection1.send(new Message(4, "", matrix));
 						connection1.send(new Message(5,"Tie !!!"));
 						connection.send(new Message(5,"Tie !!!"));
+					
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -152,6 +170,16 @@ public class GameLoopSession extends Thread {
 
 		}
 		
+		try {
+			connection1.close();
+			connection.close();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+	
+		handler.wakeUp();
+		handler1.wakeUp();
 		System.out.println("GameSeesion end !");
 	}
 
