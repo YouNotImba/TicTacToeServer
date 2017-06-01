@@ -7,6 +7,7 @@ import view.View;
 
 public class Controller {
 
+	//lala
 	private static View VIEW;
 	private Client model;
 
