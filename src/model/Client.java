@@ -3,12 +3,9 @@ package model;
 import java.io.IOException;
 import java.net.Socket;
 
-import javax.swing.JOptionPane;
-
 import controller.Controller;
 import model.networkutilites.Connection;
 import model.networkutilites.Message;
-import view.View;
 
 public class Client {
 	private static Controller controller;
@@ -26,6 +23,7 @@ public class Client {
 		protected void processIncomingMessage(Message message) {
 			matrix = message.getMatrix();
 			controller.updateFields(matrix);
+			// changed
 		}
 
 		public void clientHandshake() throws IOException, ClassNotFoundException {
