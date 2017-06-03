@@ -13,7 +13,7 @@ public class Controller {
 		VIEW = new View();
 		VIEW.setController(this);
 		// VIEW.init();
-		// Changed
+		// Changed 2
 	}
 
 	public void initView() {
